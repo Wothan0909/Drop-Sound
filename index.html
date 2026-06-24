@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drop Sound</title>
+
+<style>
+
+/* ===== RESET ===== */
+
+*{
+ margin:0;
+ padding:0;
+ box-sizing:border-box;
+ font-family:Arial, sans-serif;
+}
+
+body{
+ background:#0F0F0F;
+ color:white;
+ display:flex;
+ min-height:100vh;
+}
+
+/* ===== SIDEBAR ===== */
+
+.sidebar{
+ width:240px;
+ background:#151515;
+ padding:20px;
+ border-right:1px solid #252525;
+ position:fixed;
+ left:0;
+ top:0;
+ height:100vh;
+}
+
+.logo{
+ font-size:28px;
+ font-weight:bold;
+ margin-bottom:40px;
+ color:#7E3AF2;
+}
+
+.logo span{
+ color:#FF8A30;
+}
+
+.menu-button{
+ width:100%;
+ background:#1E1E1E;
+ border:none;
+ color:white;
+ padding:14px;
+ margin-bottom:12px;
+ border-radius:10px;
+ cursor:pointer;
+ text-align:left;
+ transition:0.2s;
+}
+
+.menu-button:hover{
+ background:#7E3AF2;
+}
+
+/* ===== MAIN ===== */
+
+.main{
+ margin-left:240px;
+ flex:1;
+ padding:30px;
+ padding-bottom:120px;
+}
+
+/* ===== SEARCH ===== */
+
+.search-box{
+ width:100%;
+ padding:14px;
+ border:none;
+ outline:none;
+ background:#1A1A1A;
+ color:white;
+ border-radius:12px;
+ margin-bottom:25px;
+ font-size:16px;
+}
+
+/* ===== SECTION ===== */
+
+.section-title{
+ font-size:28px;
+ margin-bottom:20px;
+}
+
+/* ===== GRID ===== */
+
+.audio-grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+ gap:20px;
+}
+
+/* ===== CARD ===== */
+
+.audio-card{
+ background:#1A1A1A;
+ border-radius:14px;
+ padding:14px;
+ transition:0.2s;
+}
+
+.audio-card:hover{
+ transform:scale(1.03);
+}
+
+.audio-image{
+ width:100%;
+ height:170px;
+ object-fit:cover;
+ border-radius:10px;
+ background:#333;
+}
+
+.audio-title{
+ margin-top:10px;
+ font-size:17px;
+ font-weight:bold;
+}
+
+.audio-author{
+ color:#999;
+ font-size:13px;
+ margin-top:4px;
+}
+
+.play-btn{
+ margin-top:12px;
+ width:100%;
+ background:#FF8A30;
+ border:none;
+ color:black;
+ padding:10px;
+ border-radius:10px;
+ cursor:pointer;
+ font-weight:bold;
+}
+
+/* ===== UPLOAD ===== */
+
+.upload-area{
+ background:#1A1A1A;
+ padding:20px;
+ border-radius:15px;
+ margin-bottom:30px;
+}
+
+.upload-area input{
+ width:100%;
+ margin-bottom:12px;
+ padding:12px;
+ background:#262626;
+ border:none;
+ color:white;
+ border-radius:8px;
+}
+
+.upload-button{
+ background:#7E3AF2;
+ border:none;
+ color:white;
+ padding:14px;
+ border-radius:10px;
+ cursor:pointer;
+ width:100%;
+}
+
+/* ===== PLAYLIST ===== */
+
+.playlist-container{
+ margin-top:30px;
+}
+
+.playlist-box{
+ background:#1A1A1A;
+ padding:15px;
+ margin-bottom:15px;
+ border-radius:10px;
+}
+
+.playlist-audios{
+ margin-top:10px;
+}
+
+/* ===== PLAYER ===== */
+
+.player{
+ position:fixed;
+ bottom:0;
+ left:240px;
+ right:0;
+ height:90px;
+ background:#181818;
+ border-top:1px solid #333;
+ display:flex;
+ align-items:center;
+ padding:15px;
+ gap:20px;
+}
+
+.player-cover{
+ width:60px;
+ height:60px;
+ object-fit:cover;
+ border-radius:8px;
+ background:#333;
+}
+
+.player-info{
+ flex:1;
+}
+
+.player-title{
+ font-weight:bold;
+ margin-bottom:5px;
+}
+
+audio{
+ width:100%;
+}
+
+/* ===== MOBILE ===== */
+
+@media(max-width:800px){
+
+ body{
+  flex-direction:column;
+ }
+
+ .sidebar{
+  position:relative;
+  width:100%;
+  height:auto;
+  border-right:none;
+ }
+
+ .main{
+  margin-left:0;
+ }
+
+ .player{
+  left:0;
+ }
+
+}
+
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+ <div class="logo">
+  Drop<span>Sound</span>
+ </div>
+
+ <button class="menu-button" onclick="showSection('explore')">
+  Explore
+ </button>
+
+ <button class="menu-button" onclick="showSection('myaudios')">
+  My Sounds
+ </button>
+
+ <button class="menu-button" onclick="showSection('playlists')">
+  Playlists
+ </button>
+
+ <button class="menu-button" onclick="showSection('upload')">
+  Upload
+ </button>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+ <!-- SEARCH -->
+
+ <input
+  class="search-box"
+  placeholder="Search audio..."
+  id="searchInput"
+ >
+
+ <!-- EXPLORE -->
+
+ <div id="exploreSection">
+
+  <h2 class="section-title">
+   Explore
+  </h2>
+
+  <div
+   class="audio-grid"
+   id="exploreGrid"
+  ></div>
+
+ </div>
+
+ <!-- MY AUDIOS -->
+
+ <div
+  id="myaudiosSection"
+  style="display:none"
+ >
+
+  <h2 class="section-title">
+   My Sounds
+  </h2>
+
+  <div
+   class="audio-grid"
+   id="myAudiosGrid"
+  ></div>
+
+ </div>
+
+ <!-- PLAYLISTS -->
+
+ <div
+  id="playlistsSection"
+  style="display:none"
+ >
+
+  <h2 class="section-title">
+   Playlists
+  </h2>
+
+  <div class="upload-area">
+
+   <input
+    id="playlistName"
+    placeholder="Playlist Name"
+   >
+
+   <button
+    class="upload-button"
+    id="createPlaylistBtn"
+   >
+    Create Playlist
+   </button>
+
+  </div>
+
+  <div
+
+ id="playlistAddSection"
+ class="upload-area"
+>
+
+ <select id="playlistSelect"></select>
+
+ <select id="audioSelect"></select>
+
+ <button
+  class="upload-button"
+  id="addToPlaylistBtn"
+ >
+  Add Audio To Playlist
+ </button>
+
+</div>
+
+<div
+ id="playlistsContainer"
+ class="playlist-container"
+></div>
+  ></div>
+
+ </div>
+
+ <!-- UPLOAD -->
+
+ <div
+  id="uploadSection"
+  style="display:none"
+ >
+
+  <h2 class="section-title">
+   Upload Audio
+  </h2>
+
+  <div class="upload-area">
+
+   <input
+    id="audioName"
+    placeholder="Audio Name"
+   >
+
+   <input
+    type="file"
+    id="audioFile"
+    accept="audio/*"
+   >
+
+   <input
+    type="file"
+    id="coverFile"
+    accept="image/*"
+   >
+
+   <button
+    class="upload-button"
+    id="uploadBtn"
+   >
+    Upload
+   </button>
+
+  </div>
+
+ </div>
+
+</div>
+
+<!-- PLAYER -->
+
+<div class="player">
+
+ <img
+  class="player-cover"
+  id="playerCover"
+ >
+
+ <div class="player-info">
+
+  <div
+   class="player-title"
+   id="playerTitle"
+  >
+   No audio playing
+  </div>
+
+  <audio
+   controls
+   id="globalPlayer"
+  ></audio>
+
+ </div>
+
+</div>
+
+<script>
+
+
+/* =====================
+   STORAGE
+===================== */
+
+let myAudios = JSON.parse(localStorage.getItem("dropsound_audios")) || [];
+let playlists = JSON.parse(localStorage.getItem("dropsound_playlists")) || [];
+
+/* =====================
+   DEMO AUDIOS
+===================== */
+
+let demoAudios = [
+  {
+    id: 1,
+    name: "Bruh",
+    src: "https://www.soundjay.com/button/beep-07.wav",
+    cover: "https://picsum.photos/300?1"
+  },
+  {
+    id: 2,
+    name: "Sad Violin",
+    src: "https://www.soundjay.com/button/beep-09.wav",
+    cover: "https://picsum.photos/300?2"
+  },
+  {
+    id: 3,
+    name: "Vine Boom",
+    src: "https://www.soundjay.com/button/beep-10.wav",
+    cover: "https://picsum.photos/300?3"
+  }
+];
+
+/* =====================
+   SAVE LOCAL
+===================== */
+
+function saveAudios() {
+  localStorage.setItem(
+    "dropsound_audios",
+    JSON.stringify(myAudios)
+  );
+}
+
+/* =====================
+   NAVIGATION
+===================== */
+
+function showSection(section) {
+
+  document.getElementById("exploreSection").style.display = "none";
+  document.getElementById("myaudiosSection").style.display = "none";
+  document.getElementById("playlistsSection").style.display = "none";
+  document.getElementById("uploadSection").style.display = "none";
+
+  document.getElementById(section + "Section").style.display = "block";
+}
+
+/* =====================
+   PLAYER
+===================== */
+
+function playAudio(index, type) {
+
+  let audio;
+
+  if (type === "demo") {
+    audio = demoAudios[index];
+  } else {
+    audio = myAudios[index];
+  }
+
+  let player = document.getElementById("globalPlayer");
+
+  player.src = audio.src;
+
+  document.getElementById("playerTitle").textContent = audio.name;
+  document.getElementById("playerCover").src = audio.cover;
+
+  player.play();
+}
+
+/* =====================
+   CREATE CARD
+===================== */
+
+function createAudioCard(audio, index, type) {
+
+  return `
+    <div class="audio-card">
+
+      <img
+        class="audio-image"
+        src="${audio.cover}"
+      >
+
+      <div class="audio-title">
+        ${audio.name}
+      </div>
+
+      <div class="audio-author">
+        Drop Sound
+      </div>
+
+      <button
+        class="play-btn"
+        onclick="playAudio(${index}, '${type}')"
+      >
+        Play
+      </button>
+
+    </div>
+  `;
+}
+
+/* =====================
+   RENDER EXPLORE
+===================== */
+
+function renderExplore() {
+
+  let html = "";
+
+  for (let i = 0; i < demoAudios.length; i++) {
+    html += createAudioCard(
+      demoAudios[i],
+      i,
+      "demo"
+    );
+  }
+
+  for (let i = 0; i < myAudios.length; i++) {
+    html += createAudioCard(
+      myAudios[i],
+      i,
+      "my"
+    );
+  }
+
+  document.getElementById("exploreGrid").innerHTML = html;
+}
+
+/* =====================
+   RENDER MY AUDIOS
+===================== */
+
+function renderMyAudios() {
+
+  let html = "";
+
+  for (let i = 0; i < myAudios.length; i++) {
+    html += createAudioCard(
+      myAudios[i],
+      i,
+      "my"
+    );
+  }
+
+  document.getElementById("myAudiosGrid").innerHTML = html;
+}
+
+/* =====================
+   UPLOAD
+===================== */
+
+document
+  .getElementById("uploadBtn")
+  .addEventListener("click", uploadAudio);
+
+function uploadAudio() {
+
+  let name = document.getElementById("audioName").value;
+  let audioFile = document.getElementById("audioFile").files[0];
+  let coverFile = document.getElementById("coverFile").files[0];
+
+  if (!name) {
+    alert("Write audio name");
+    return;
+  }
+
+  if (!audioFile) {
+    alert("Select audio file");
+    return;
+  }
+
+  if (!coverFile) {
+    alert("Select image");
+    return;
+  }
+
+  let audioReader = new FileReader();
+  let coverReader = new FileReader();
+
+  audioReader.onload = function(event1) {
+
+    let audioData = event1.target.result;
+
+    coverReader.onload = function(event2) {
+
+      let coverData = event2.target.result;
+
+      let newAudio = {
+        id: Date.now(),
+        name: name,
+        src: audioData,
+        cover: coverData
+      };
+
+      myAudios.push(newAudio);
+
+      saveAudios();
+
+      renderMyAudios();
+      renderExplore();
+
+      alert("Audio uploaded");
+
+      document.getElementById("audioName").value = "";
+    };
+
+    coverReader.readAsDataURL(coverFile);
+  };
+
+  audioReader.readAsDataURL(audioFile);
+}
+
+/* =====================
+   SEARCH
+===================== */
+
+document
+  .getElementById("searchInput")
+  .addEventListener("input", searchAudios);
+
+function searchAudios() {
+
+  let query = document
+    .getElementById("searchInput")
+    .value
+    .toLowerCase();
+
+  let allAudios = [...demoAudios, ...myAudios];
+
+  let html = "";
+
+  for (let i = 0; i < allAudios.length; i++) {
+
+    if (
+      allAudios[i].name
+      .toLowerCase()
+      .includes(query)
+    ) {
+
+      html += `
+        <div class="audio-card">
+
+          <img
+            class="audio-image"
+            src="${allAudios[i].cover}"
+          >
+
+          <div class="audio-title">
+            ${allAudios[i].name}
+          </div>
+
+          <button
+            class="play-btn"
+            onclick="
+              document.getElementById('globalPlayer').src='${allAudios[i].src}';
+              document.getElementById('playerTitle').textContent='${allAudios[i].name}';
+              document.getElementById('playerCover').src='${allAudios[i].cover}';
+              document.getElementById('globalPlayer').play();
+            "
+          >
+            Play
+          </button>
+
+        </div>
+      `;
+    }
+  }
+
+  document.getElementById("exploreGrid").innerHTML = html;
+}
+
+/* =====================
+   START
+===================== */
+
+renderExplore();
+renderMyAudios();
+/* =====================
+   SAVE PLAYLISTS
+===================== */
+
+function savePlaylists() {
+  localStorage.setItem(
+    "dropsound_playlists",
+    JSON.stringify(playlists)
+  );
+}
+
+/* =====================
+   CREATE PLAYLIST
+===================== */
+
+document
+.getElementById("createPlaylistBtn")
+.addEventListener("click", createPlaylist);
+
+function createPlaylist() {
+
+  let name =
+  document.getElementById("playlistName").value;
+
+  if (!name) {
+    alert("Write playlist name");
+    return;
+  }
+
+  playlists.push({
+    name: name,
+    audios: []
+  });
+
+  savePlaylists();
+
+  renderPlaylists();
+
+  updateSelectors();
+
+  document.getElementById("playlistName").value = "";
+
+}
+</script>
+
+</body>
+</html>
